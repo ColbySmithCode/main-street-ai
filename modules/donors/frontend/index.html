@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donor Letters — Main Street AI</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --border: #2d3148; --accent: #6c63ff;
+    --accent-hover: #5a52d5; --text: #e8eaf0; --muted: #8b8fa8; --success: #4caf82; --warning: #f0a500;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+  .logo span { color: var(--text); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-left: auto; }
+  .container { max-width: 820px; margin: 0 auto; padding: 36px 24px 80px; }
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+
+  /* View toggle */
+  .toggle { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 26px; }
+  .toggle button { background: none; border: none; color: var(--muted); font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 7px; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .toggle button.active { background: var(--accent); color: #fff; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* sub-tabs */
+  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab { background: none; border: none; color: var(--muted); font-size: 14px; font-weight: 600; padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; transition: color .15s, border-color .15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+  input, textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 72px; }
+  textarea.csv { min-height: 150px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.7; }
+  select option { background: var(--surface); }
+  .row { display: grid; gap: 14px; margin-bottom: 14px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; }
+  .field.full { grid-column: 1 / -1; }
+  .hint { color: var(--muted); font-weight: 400; }
+
+  .generate-btn { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; transition: background .15s, opacity .15s; }
+  .generate-btn:hover { background: var(--accent-hover); }
+  .generate-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .secondary-btn { background: none; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: border-color .15s, color .15s; }
+  .secondary-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results { margin-top: 30px; }
+  .results-header { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+  .results-header .secondary-btn { margin-left: auto; text-transform: none; letter-spacing: 0; }
+
+  .letter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+  .letter-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .letter-name { font-size: 15px; font-weight: 700; }
+  .letter-subject { font-size: 12px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+  .subject-line { font-size: 14px; font-weight: 600; background: var(--bg); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; }
+  .letter-body { font-size: 14px; line-height: 1.75; background: var(--bg); border-radius: 6px; padding: 14px 16px; white-space: pre-line; }
+  .ps { font-size: 13px; color: var(--text); font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .notes { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 12px; padding: 6px 12px; cursor: pointer; transition: border-color .15s, color .15s; font-family: inherit; margin-left: auto; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+  /* progress */
+  .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .progress-text { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 8px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); width: 0%; transition: width .3s; }
+
+  .error-msg { background: rgba(229, 115, 115, .1); border: 1px solid rgba(229, 115, 115, .3); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #e57373; margin-bottom: 12px; }
+  .warn-inline { font-size: 12px; color: var(--warning); margin-top: 8px; }
+
+  @media (max-width: 600px) { .row-2, .row-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>Main Street AI</span> · Donors</div>
+  <div class="badge">Free</div>
+</header>
+
+<div class="container">
+  <h1>Donor letters that sound like a person wrote them</h1>
+  <p class="subtitle">Thank-yous, tax acknowledgments, and win-backs — one at a time or hundreds at once.</p>
+
+  <div class="toggle">
+    <button class="active" id="tg-single" onclick="setView('single')">Single letter</button>
+    <button id="tg-batch" onclick="setView('batch')">Batch thank-yous</button>
+  </div>
+
+  <!-- ═══════════ SINGLE VIEW ═══════════ -->
+  <div class="view active" id="view-single">
+    <div class="tabs">
+      <button class="tab active" data-tab="thankyou" onclick="switchTab('thankyou')">Thank-you</button>
+      <button class="tab" data-tab="tax" onclick="switchTab('tax')">Tax acknowledgment</button>
+      <button class="tab" data-tab="winback" onclick="switchTab('winback')">Win-back</button>
+    </div>
+
+    <!-- Thank-you -->
+    <div class="panel active" id="panel-thankyou">
+      <div class="card">
+        <div class="card-title">Your organization</div>
+        <div class="row row-2">
+          <div class="field"><label>Organization name</label><input id="t_org_name" placeholder="Riverside Food Bank" /></div>
+          <div class="field"><label>Organization type</label><input id="t_org_type" placeholder="food bank" /></div>
+        </div>
+        <div class="row row-2">
+          <div class="field"><label>Mission</label><input id="t_mission" placeholder="No family in our county goes hungry" /></div>
+          <div class="field"><label>EIN <span class="hint">(optional)</span></label><input id="t_ein" placeholder="12-3456789" /></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">The gift</div>
+        <div class="row row-3">
+          <div class="field"><label>Donor name</label><input id="t_donor_name" placeholder="Margaret Chen" /></div>
+          <div class="field"><label>Gift amount</label><input id="t_gift_amount" placeholder="$250" /></div>
+          <div class="field"><label>Gift date</label><input id="t_gift_date" placeholder="March 3, 2026" /></div>
+        </div>
+        <div class="row row-2">
+          <div class="field"><label>Gift type</label>
+            <select id="t_gift_type"><option>cash</option><option>stock</option><option>in-kind</option></select>
+          </div>
+          <div class="field"><label>Donor history <span class="hint">(optional)</span></label><input id="t_donor_history" placeholder="Monthly donor for 3 years" /></div>
+        </div>
+        <div class="field full"><label>What this gift makes possible</label><textarea id="t_what_gift_enables" placeholder="$250 buys a week of groceries for 10 families"></textarea></div>
+      </div>
+      <button class="generate-btn" id="btn-thankyou" onclick="single('thankyou')">Write thank-you letter</button>
+      <div class="results" id="res-thankyou"></div>
+    </div>
+
+    <!-- Tax acknowledgment -->
+    <div class="panel" id="panel-tax">
+      <div class="card">
+        <div class="card-title">Organization (required for IRS compliance)</div>
+        <div class="row row-2">
+          <div class="field"><label>Organization name</label><input id="x_org_name" placeholder="Riverside Food Bank" /></div>
+          <div class="field"><label>EIN</label><input id="x_ein" placeholder="12-3456789" /></div>
+        </div>
+        <div class="field full"><label>Organization address</label><input id="x_org_address" placeholder="100 Main St, Riverside, CA 92501" /></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Donor & gift</div>
+        <div class="row row-2">
+          <div class="field"><label>Donor name</label><input id="x_donor_name" placeholder="Margaret Chen" /></div>
+          <div class="field"><label>Donor address</label><input id="x_donor_address" placeholder="42 Oak Ave, Riverside, CA" /></div>
+        </div>
+        <div class="row row-3">
+          <div class="field"><label>Gift amount</label><input id="x_gift_amount" placeholder="$250" /></div>
+          <div class="field"><label>Gift date</label><input id="x_gift_date" placeholder="Dec 28, 2025" /></div>
+          <div class="field"><label>Gift type</label><select id="x_gift_type"><option>cash</option><option>stock</option><option>in-kind</option></select></div>
+        </div>
+        <div class="field full"><label>Goods or services provided in exchange?</label><input id="x_goods_or_services_provided" placeholder="None (leave as None for a standard deductible gift)" value="None" /></div>
+      </div>
+      <button class="generate-btn" id="btn-tax" onclick="single('tax')">Write tax acknowledgment</button>
+      <div class="results" id="res-tax"></div>
+    </div>
+
+    <!-- Win-back -->
+    <div class="panel" id="panel-winback">
+      <div class="card">
+        <div class="card-title">Your organization</div>
+        <div class="row row-2">
+          <div class="field"><label>Organization name</label><input id="w_org_name" placeholder="Riverside Food Bank" /></div>
+          <div class="field"><label>Organization type</label><input id="w_org_type" placeholder="food bank" /></div>
+        </div>
+        <div class="field full"><label>Mission</label><input id="w_mission" placeholder="No family in our county goes hungry" /></div>
+      </div>
+      <div class="card">
+        <div class="card-title">The lapsed donor</div>
+        <div class="row row-3">
+          <div class="field"><label>Donor name</label><input id="w_donor_name" placeholder="David Okafor" /></div>
+          <div class="field"><label>Last gift amount</label><input id="w_last_gift_amount" placeholder="$100" /></div>
+          <div class="field"><label>Last gift date</label><input id="w_last_gift_date" placeholder="June 2023" /></div>
+        </div>
+        <div class="field full"><label>What's happened since they last gave</label><textarea id="w_what_has_happened_since" placeholder="We opened a second pantry, doubled the families we serve, and launched weekend meals for kids."></textarea></div>
+      </div>
+      <button class="generate-btn" id="btn-winback" onclick="single('winback')">Write win-back letter</button>
+      <div class="results" id="res-winback"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BATCH VIEW ═══════════ -->
+  <div class="view" id="view-batch">
+    <div class="card">
+      <div class="card-title">Your organization</div>
+      <div class="row row-3">
+        <div class="field"><label>Organization name</label><input id="b_org_name" placeholder="Riverside Food Bank" /></div>
+        <div class="field"><label>Organization type</label><input id="b_org_type" placeholder="food bank" /></div>
+        <div class="field"><label>Mission</label><input id="b_mission" placeholder="No family goes hungry" /></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Your donors</div>
+      <label>Paste one donor per line: <span class="hint">name, email, gift amount, gift date, notes</span></label>
+      <textarea class="csv" id="b_csv" placeholder="Margaret Chen, margaret@email.com, $250, Mar 3 2026, monthly donor 3 years
+David Okafor, david@email.com, $100, Mar 5 2026, first-time gift
+Lena Park, lena@email.com, $1000, Mar 6 2026, board member"></textarea>
+      <div style="margin-top:10px; display:flex; gap:10px;">
+        <button class="secondary-btn" onclick="loadExample()">Load example</button>
+        <span class="hint" id="csv-count" style="align-self:center"></span>
+      </div>
+    </div>
+    <button class="generate-btn" id="btn-batch" onclick="runBatch()">Generate all letters</button>
+    <div class="results" id="res-batch"></div>
+  </div>
+</div>
+
+<script>
+  const WORKER_URL = 'https://main-street-donors.YOUR_SUBDOMAIN.workers.dev';
+  let batchResults = [];
+
+  function setView(v) {
+    document.getElementById('tg-single').classList.toggle('active', v === 'single');
+    document.getElementById('tg-batch').classList.toggle('active', v === 'batch');
+    document.getElementById('view-single').classList.toggle('active', v === 'single');
+    document.getElementById('view-batch').classList.toggle('active', v === 'batch');
+  }
+  function switchTab(name) {
+    document.querySelectorAll('#view-single .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('#view-single .panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+  }
+
+  function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function busy(id, label) { const b = document.getElementById(id); b.disabled = true; b.dataset.label = b.textContent; b.innerHTML = `<span class="spinner"></span>${label}`; }
+  function unbusy(id) { const b = document.getElementById(id); b.disabled = false; b.textContent = b.dataset.label; }
+  function err(resId, msg) { document.getElementById(resId).innerHTML = `<div class="error-msg">${htmlEsc(msg)}</div>`; }
+
+  async function postJSON(path, payload) {
+    const res = await fetch(`${WORKER_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  // ── Single letter ──
+  const SINGLE = {
+    thankyou: { path: '/thank-you', btn: 'btn-thankyou', res: 'res-thankyou', label: 'Writing…',
+      payload: () => ({ org_name: val('t_org_name'), org_type: val('t_org_type'), mission: val('t_mission'), ein: val('t_ein'),
+        donor_name: val('t_donor_name'), gift_amount: val('t_gift_amount'), gift_date: val('t_gift_date'),
+        gift_type: val('t_gift_type'), what_gift_enables: val('t_what_gift_enables'), donor_history: val('t_donor_history') }),
+      require: ['t_org_name', 't_donor_name'] },
+    tax: { path: '/tax-acknowledgment', btn: 'btn-tax', res: 'res-tax', label: 'Writing…',
+      payload: () => ({ org_name: val('x_org_name'), ein: val('x_ein'), org_address: val('x_org_address'),
+        donor_name: val('x_donor_name'), donor_address: val('x_donor_address'), gift_amount: val('x_gift_amount'),
+        gift_date: val('x_gift_date'), gift_type: val('x_gift_type'), goods_or_services_provided: val('x_goods_or_services_provided') }),
+      require: ['x_org_name', 'x_donor_name', 'x_gift_amount'] },
+    winback: { path: '/win-back', btn: 'btn-winback', res: 'res-winback', label: 'Writing…',
+      payload: () => ({ org_name: val('w_org_name'), org_type: val('w_org_type'), mission: val('w_mission'),
+        donor_name: val('w_donor_name'), last_gift_amount: val('w_last_gift_amount'), last_gift_date: val('w_last_gift_date'),
+        what_has_happened_since: val('w_what_has_happened_since') }),
+      require: ['w_org_name', 'w_donor_name'] },
+  };
+
+  async function single(kind) {
+    const cfg = SINGLE[kind];
+    for (const r of cfg.require) { if (!val(r)) return err(cfg.res, 'Please fill in the required fields (organization and donor name).'); }
+    busy(cfg.btn, cfg.label);
+    document.getElementById(cfg.res).innerHTML = '';
+    try {
+      const data = await postJSON(cfg.path, cfg.payload());
+      const donorName = cfg.payload().donor_name || 'Donor';
+      document.getElementById(cfg.res).innerHTML = `<div class="results-header">Your letter</div>` + letterCardHTML(donorName, data, kind === 'tax');
+      wireCopy(cfg.res);
+    } catch (e) { err(cfg.res, `Could not generate the letter: ${e.message}`); }
+    finally { unbusy(cfg.btn); }
+  }
+
+  function letterCardHTML(name, d, isTax) {
+    const full = (d.subject_line ? `Subject: ${d.subject_line}\n\n` : '') + (d.letter || '') + (d.p_s ? `\n\nP.S. ${d.p_s}` : '');
+    return `<div class="letter-card">
+      <div class="letter-head"><div class="letter-name">${htmlEsc(name)}</div><button class="copy-btn" data-copy="${attr(full)}">Copy letter</button></div>
+      ${d.subject_line ? `<div class="letter-subject">Subject line</div><div class="subject-line">${htmlEsc(d.subject_line)}</div>` : ''}
+      <div class="letter-body">${htmlEsc(d.letter || '')}</div>
+      ${d.p_s ? `<div class="ps">P.S. ${htmlEsc(d.p_s)}</div>` : ''}
+      ${d.personalization_notes ? `<div class="notes">Why this works: ${htmlEsc(d.personalization_notes)}</div>` : ''}
+      ${isTax && !val('x_ein') ? `<div class="warn-inline">⚠ No EIN entered — add your EIN before sending; the IRS requires it on acknowledgments.</div>` : ''}
+    </div>`;
+  }
+
+  // ── Batch ──
+  function parseCSV(text) {
+    return text.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      return { name: parts[0] || '', email: parts[1] || '', amount: parts[2] || '', date: parts[3] || '', notes: parts.slice(4).join(', ') || '' };
+    }).filter(d => d.name);
+  }
+  function loadExample() {
+    document.getElementById('b_org_name').value = 'Riverside Food Bank';
+    document.getElementById('b_org_type').value = 'food bank';
+    document.getElementById('b_mission').value = 'No family in our county goes hungry';
+    document.getElementById('b_csv').value =
+      `Margaret Chen, margaret@email.com, $250, Mar 3 2026, monthly donor 3 years\n` +
+      `David Okafor, david@email.com, $100, Mar 5 2026, first-time gift\n` +
+      `Lena Park, lena@email.com, $1000, Mar 6 2026, board member, gave at the gala`;
+  }
+
+  async function runBatch() {
+    const org_name = val('b_org_name'), org_type = val('b_org_type'), mission = val('b_mission');
+    const donors = parseCSV(document.getElementById('b_csv').value);
+    if (!org_name) return err('res-batch', 'Please enter your organization name.');
+    if (donors.length === 0) return err('res-batch', 'Add at least one donor (one per line).');
+
+    busy('btn-batch', `Generating ${donors.length} letters…`);
+    batchResults = [];
+    const resEl = document.getElementById('res-batch');
+    resEl.innerHTML = `
+      <div class="progress-wrap">
+        <div class="progress-text" id="prog-text">Starting…</div>
+        <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      </div>
+      <div id="batch-list"></div>`;
+
+    for (let i = 0; i < donors.length; i++) {
+      const d = donors[i];
+      document.getElementById('prog-text').textContent = `Writing letter ${i + 1} of ${donors.length} — ${d.name}`;
+      try {
+        // /batch-thank-you accepts a donors array; we send one at a time for live progress.
+        const data = await postJSON('/batch-thank-you', { org_name, org_type, mission, donors: [d] });
+        const letter = (data.letters && data.letters[0]) || { error: 'No letter returned' };
+        batchResults.push({ donor: d, data: letter });
+      } catch (e) {
+        batchResults.push({ donor: d, data: { error: e.message } });
+      }
+      document.getElementById('prog-fill').style.width = `${Math.round(((i + 1) / donors.length) * 100)}%`;
+      paintBatch();
+    }
+
+    document.getElementById('prog-text').textContent = `Done — ${batchResults.length} letters ready`;
+    unbusy('btn-batch');
+  }
+
+  function paintBatch() {
+    const list = document.getElementById('batch-list');
+    list.innerHTML = `<div class="results-header">${batchResults.length} letter${batchResults.length>1?'s':''}
+        <button class="secondary-btn" onclick="downloadAll()">Download all as .txt</button></div>` +
+      batchResults.map(({ donor, data }) => {
+        if (data.error) return `<div class="letter-card"><div class="letter-name">${htmlEsc(donor.name)}</div><div class="error-msg" style="margin-top:8px">Could not generate: ${htmlEsc(data.error)}</div></div>`;
+        const full = (data.subject_line ? `Subject: ${data.subject_line}\n\n` : '') + (data.letter || '') + (data.p_s ? `\n\nP.S. ${data.p_s}` : '');
+        return `<div class="letter-card">
+          <div class="letter-head"><div class="letter-name">${htmlEsc(donor.name)}</div><button class="copy-btn" data-copy="${attr(full)}">Copy</button></div>
+          ${donor.email ? `<div class="notes" style="margin:0 0 8px">${htmlEsc(donor.email)}</div>` : ''}
+          ${data.subject_line ? `<div class="subject-line">${htmlEsc(data.subject_line)}</div>` : ''}
+          <div class="letter-body">${htmlEsc(data.letter || '')}</div>
+          ${data.p_s ? `<div class="ps">P.S. ${htmlEsc(data.p_s)}</div>` : ''}
+        </div>`;
+      }).join('');
+    wireCopy('res-batch');
+  }
+
+  function downloadAll() {
+    const text = batchResults.map(({ donor, data }) => {
+      if (data.error) return `=== ${donor.name} ===\n[error generating letter]\n`;
+      const full = (data.subject_line ? `Subject: ${data.subject_line}\n\n` : '') + (data.letter || '') + (data.p_s ? `\n\nP.S. ${data.p_s}` : '');
+      return `=== ${donor.name}${donor.email ? ' <' + donor.email + '>' : ''} ===\n${full}\n`;
+    }).join('\n----------------------------------------\n\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'donor-letters.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ── Helpers ──
+  function wireCopy(scopeId) {
+    document.getElementById(scopeId).querySelectorAll('.copy-btn[data-copy]').forEach(b => {
+      if (b._wired) return; b._wired = true;
+      b.addEventListener('click', () => copyText(b, b.getAttribute('data-copy')));
+    });
+  }
+  async function copyText(btn, text) {
+    try { await navigator.clipboard.writeText(text); const o = btn.textContent; btn.textContent = 'Copied!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = o; btn.classList.remove('copied'); }, 2000); } catch {}
+  }
+  function htmlEsc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function attr(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impact Stories — Main Street AI</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2d3148;
+    --accent: #6c63ff;
+    --accent-hover: #5a52d5;
+    --text: #e8eaf0;
+    --muted: #8b8fa8;
+    --success: #4caf82;
+    --warning: #f0a500;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+  .logo span { color: var(--text); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-left: auto; }
+
+  .container { max-width: 820px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 36px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+  input, textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px;
+    font-family: inherit; outline: none; transition: border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 70px; }
+  select option { background: var(--surface); }
+
+  .row { display: grid; gap: 14px; margin-bottom: 14px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; }
+  .field.full { grid-column: 1 / -1; }
+
+  .input-prefix { position: relative; }
+  .input-prefix span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+  .input-prefix input { padding-left: 26px; }
+
+  /* Stat rows */
+  .stat-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .stat-row {
+    display: grid; grid-template-columns: 1.4fr 1fr 36px; gap: 8px; align-items: center;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
+  }
+  .stat-row input { background: transparent; border: none; padding: 4px 0; font-size: 14px; }
+  .stat-row input:focus { border: none; box-shadow: none; }
+  .stat-header { display: grid; grid-template-columns: 1.4fr 1fr 36px; gap: 8px; padding: 0 12px; margin-bottom: 4px; }
+  .stat-header span { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 4px; border-radius: 4px; transition: color .15s; }
+  .remove-btn:hover { color: #e57373; }
+  .add-btn { background: none; border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; padding: 10px; cursor: pointer; width: 100%; transition: border-color .15s, color .15s; }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .generate-btn {
+    width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
+    transition: background .15s, opacity .15s; letter-spacing: .02em;
+  }
+  .generate-btn:hover { background: var(--accent-hover); }
+  .generate-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #results { margin-top: 36px; }
+  .results-header { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+
+  .headline-card {
+    background: linear-gradient(135deg, rgba(108,99,255,.18), rgba(108,99,255,.05));
+    border: 1px solid var(--accent); border-radius: 12px; padding: 24px; margin-bottom: 20px;
+  }
+  .headline-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  .headline-text { font-size: 22px; font-weight: 700; line-height: 1.35; }
+
+  .output { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+  .output-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px; cursor: pointer; user-select: none; }
+  .output-head:hover { background: rgba(255,255,255,.02); }
+  .output-icon { width: 26px; height: 26px; border-radius: 7px; background: rgba(108,99,255,.15); display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+  .output-name { font-size: 14px; font-weight: 600; }
+  .output-desc { font-size: 12px; color: var(--muted); }
+  .chevron { margin-left: auto; color: var(--muted); transition: transform .2s; font-size: 12px; }
+  .output.collapsed .chevron { transform: rotate(-90deg); }
+  .output-body { padding: 0 20px 20px; }
+  .output.collapsed .output-body { display: none; }
+  .output-text { font-size: 14px; line-height: 1.7; color: var(--text); background: var(--bg); border-radius: 8px; padding: 14px 16px; white-space: pre-line; }
+  .output-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
+
+  .cost-pill { display: inline-block; font-size: 18px; font-weight: 700; color: var(--success); }
+
+  .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 12px; padding: 6px 12px; cursor: pointer; transition: border-color .15s, color .15s; font-family: inherit; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+  .error-msg { background: rgba(229, 115, 115, .1); border: 1px solid rgba(229, 115, 115, .3); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #e57373; margin-bottom: 14px; }
+  .hint { color: var(--muted); font-weight: 400; }
+
+  @media (max-width: 600px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>Main Street AI</span> · Impact</div>
+  <div class="badge">Free</div>
+</header>
+
+<div class="container">
+  <h1>Turn your numbers into stories funders remember</h1>
+  <p class="subtitle">Enter your program's results and get six ready-to-use write-ups — a funder report section, a board summary, a social post, a newsletter paragraph, a cost-per-outcome figure, and a headline. About 60 seconds.</p>
+
+  <div class="card">
+    <div class="card-title">Your organization</div>
+    <div class="row row-2">
+      <div class="field">
+        <label>Organization name</label>
+        <input type="text" id="org_name" placeholder="Riverside Food Bank" />
+      </div>
+      <div class="field">
+        <label>Organization type</label>
+        <select id="org_type">
+          <option value="food bank">Food bank</option>
+          <option value="job training">Job training</option>
+          <option value="youth education">Youth education</option>
+          <option value="housing">Housing</option>
+          <option value="veterans">Veterans</option>
+          <option value="environmental">Environmental</option>
+          <option value="legal aid">Legal aid</option>
+          <option value="health">Health</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field full" style="margin-bottom:14px">
+      <label>Mission <span class="hint">(1–2 sentences)</span></label>
+      <textarea id="mission" placeholder="We make sure no family in Riverside County goes hungry, providing groceries and hot meals to neighbors in need."></textarea>
+    </div>
+    <div class="row row-2">
+      <div class="field">
+        <label>Program name</label>
+        <input type="text" id="program_name" placeholder="Summer Meals Program" />
+      </div>
+      <div class="field">
+        <label>Reporting period</label>
+        <input type="text" id="period" placeholder="Q3 2026 or 2025 Annual" />
+      </div>
+    </div>
+    <div class="field" style="max-width:280px">
+      <label>Budget spent on this program <span class="hint">(optional)</span></label>
+      <div class="input-prefix">
+        <span>$</span>
+        <input type="number" id="budget_spent" placeholder="148000" min="0" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your results</div>
+    <div class="stat-header">
+      <span>Metric</span>
+      <span>Value</span>
+      <span></span>
+    </div>
+    <div class="stat-list" id="stat-list"></div>
+    <button class="add-btn" onclick="addStat()">+ Add a stat</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Make it specific</div>
+    <div class="field full">
+      <label>Additional context <span class="hint">(optional — a story, a quote, who you serve, anything that makes it real)</span></label>
+      <textarea id="context" placeholder="Most of the kids we fed this summer normally rely on free school lunch. When school's out, those meals disappear. One mom told us it was the first summer she didn't have to choose between groceries and rent."></textarea>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generate-btn" onclick="generate()">Generate impact stories</button>
+
+  <div id="results"></div>
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────
+  const WORKER_URL = 'https://main-street-impact.YOUR_SUBDOMAIN.workers.dev';
+
+  // ── Stat rows ───────────────────────────────────────────────────────────────
+  let statCount = 0;
+  function addStat(metric = '', value = '') {
+    const id = ++statCount;
+    const row = document.createElement('div');
+    row.className = 'stat-row';
+    row.id = `stat-${id}`;
+    row.innerHTML = `
+      <input type="text" placeholder="Meals served" value="${esc(metric)}" data-field="metric" />
+      <input type="text" placeholder="12,400" value="${esc(value)}" data-field="value" />
+      <button class="remove-btn" onclick="removeStat(${id})" title="Remove">×</button>
+    `;
+    document.getElementById('stat-list').appendChild(row);
+  }
+  function removeStat(id) {
+    const el = document.getElementById(`stat-${id}`);
+    if (el) el.remove();
+  }
+  function getStats() {
+    const stats = {};
+    document.querySelectorAll('.stat-row').forEach(row => {
+      const metric = row.querySelector('[data-field="metric"]').value.trim();
+      const value = row.querySelector('[data-field="value"]').value.trim();
+      if (metric && value) stats[metric] = value;
+    });
+    return stats;
+  }
+  function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+  // ── Generate ──────────────────────────────────────────────────────────────
+  async function generate() {
+    const payload = {
+      org_name: val('org_name'),
+      org_type: val('org_type'),
+      mission: val('mission'),
+      program_name: val('program_name'),
+      period: val('period'),
+      context: val('context'),
+      stats: getStats(),
+    };
+    const budget = val('budget_spent');
+    if (budget) payload.budget_spent = Number(budget);
+
+    if (!payload.org_name) return showError('Please enter your organization name.');
+    if (Object.keys(payload.stats).length === 0) return showError('Add at least one stat with both a metric and a value.');
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Writing your impact stories…';
+    document.getElementById('results').innerHTML = `<div class="results-header">Working…</div>`;
+
+    try {
+      const res = await fetch(`${WORKER_URL}/narrative`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      renderResults(data);
+    } catch (err) {
+      showError(`Could not generate stories: ${err.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Generate impact stories';
+    }
+  }
+
+  const FORMATS = [
+    { key: 'funder_report', icon: '📄', name: 'Funder report section', desc: 'Formal — for a grant progress report or funder update' },
+    { key: 'board_summary', icon: '📊', name: 'Board summary', desc: 'A 3-sentence executive summary for your board packet' },
+    { key: 'social_post', icon: '💬', name: 'Social media post', desc: 'Warm and shareable' },
+    { key: 'newsletter_paragraph', icon: '✉️', name: 'Newsletter paragraph', desc: 'For your community newsletter or supporter email' },
+    { key: 'cost_per_outcome', icon: '💲', name: 'Cost per outcome', desc: 'A funder-ready efficiency figure' },
+  ];
+
+  function renderResults(data) {
+    const el = document.getElementById('results');
+    el.innerHTML = `<div class="results-header">Your impact stories</div>`;
+
+    if (data.headline) {
+      const h = document.createElement('div');
+      h.className = 'headline-card';
+      h.innerHTML = `
+        <div class="headline-label">Headline</div>
+        <div class="headline-text" id="headline-text">${htmlEsc(data.headline)}</div>
+        <div class="output-actions"><button class="copy-btn" data-copy="${attr(data.headline)}">Copy headline</button></div>
+      `;
+      el.appendChild(h);
+    }
+
+    for (const fmt of FORMATS) {
+      const value = data[fmt.key];
+      if (!value) continue;
+      const block = document.createElement('div');
+      block.className = 'output';
+      const isCost = fmt.key === 'cost_per_outcome';
+      block.innerHTML = `
+        <div class="output-head" onclick="this.parentNode.classList.toggle('collapsed')">
+          <div class="output-icon">${fmt.icon}</div>
+          <div>
+            <div class="output-name">${fmt.name}</div>
+            <div class="output-desc">${fmt.desc}</div>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+        <div class="output-body">
+          ${isCost ? `<div class="output-text"><span class="cost-pill">${htmlEsc(value)}</span></div>`
+                   : `<div class="output-text">${htmlEsc(value)}</div>`}
+          <div class="output-actions"><button class="copy-btn" data-copy="${attr(value)}">Copy</button></div>
+        </div>
+      `;
+      el.appendChild(block);
+    }
+
+    el.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => { e.stopPropagation(); copyText(btn, btn.getAttribute('data-copy')); });
+    });
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function val(id) { return document.getElementById(id).value.trim(); }
+  function showError(msg) { document.getElementById('results').innerHTML = `<div class="error-msg">${htmlEsc(msg)}</div>`; }
+  async function copyText(btn, text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    } catch { /* clipboard unavailable */ }
+  }
+  function htmlEsc(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function attr(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  addStat('Meals served', '');
+  addStat('People helped', '');
+  addStat('Volunteer hours', '');
+</script>
+</body>
+</html>
