@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Outreach — Main Street AI</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2d3148;
+    --accent: #6c63ff;
+    --accent-hover: #5a52d5;
+    --text: #e8eaf0;
+    --muted: #8b8fa8;
+    --success: #4caf82;
+    --warning: #f0a500;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+  .logo span { color: var(--text); }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-left: auto; }
+
+  .container { max-width: 780px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 36px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+  input, textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px;
+    font-family: inherit; outline: none; transition: border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface); }
+
+  .row { display: grid; gap: 14px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; }
+
+  .contact-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .contact-row {
+    display: grid; grid-template-columns: 1fr 1fr 2fr 36px; gap: 8px; align-items: center;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  }
+  .contact-row input { background: transparent; border: none; padding: 0; font-size: 14px; }
+  .contact-row input:focus { border: none; box-shadow: none; }
+  .remove-btn {
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px;
+    line-height: 1; padding: 4px; border-radius: 4px; transition: color .15s;
+  }
+  .remove-btn:hover { color: #e57373; }
+
+  .add-btn {
+    background: none; border: 1px dashed var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 13px; padding: 10px; cursor: pointer;
+    width: 100%; transition: border-color .15s, color .15s;
+  }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .contact-header { display: grid; grid-template-columns: 1fr 1fr 2fr 36px; gap: 8px; padding: 0 12px; margin-bottom: 4px; }
+  .contact-header span { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+
+  .generate-btn {
+    width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
+    transition: background .15s, opacity .15s; letter-spacing: .02em;
+  }
+  .generate-btn:hover { background: var(--accent-hover); }
+  .generate-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #results { margin-top: 36px; }
+  .results-header { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+  .result-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .result-email { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .result-subject { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .subject-line { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; background: var(--bg); border-radius: 6px; padding: 8px 10px; }
+  .email-body { font-size: 14px; line-height: 1.7; color: var(--text); background: var(--bg); border-radius: 6px; padding: 12px 14px; white-space: pre-line; margin-bottom: 14px; }
+  .followup-note { font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; display: flex; gap: 6px; }
+  .followup-label { font-weight: 600; color: var(--warning); flex-shrink: 0; }
+
+  .copy-btn {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--muted); font-size: 12px; padding: 5px 10px; cursor: pointer;
+    transition: border-color .15s, color .15s; font-family: inherit;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+  .error-msg { background: rgba(229, 115, 115, .1); border: 1px solid rgba(229, 115, 115, .3); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #e57373; margin-bottom: 14px; }
+
+  @media (max-width: 600px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+    .contact-row { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+    .contact-row .notes-field { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>Main Street AI</span> · Customers</div>
+  <div class="badge">Free</div>
+</header>
+
+<div class="container">
+  <h1>Write outreach emails for your contacts</h1>
+  <p class="subtitle">Add your contacts below, describe the reason you're reaching out, and get a personalized email for each person — written to sound like you, not a template.</p>
+
+  <div class="card">
+    <div class="card-title">Your business</div>
+    <div class="row row-2" style="margin-bottom:14px">
+      <div class="field">
+        <label>Your name</label>
+        <input type="text" id="your_name" placeholder="Maria Santos" />
+      </div>
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" id="your_org" placeholder="Santos Family Catering" />
+      </div>
+    </div>
+    <div class="row row-2" style="margin-bottom:14px">
+      <div class="field">
+        <label>Business type</label>
+        <select id="business_type">
+          <option value="">Select type…</option>
+          <option>restaurant</option>
+          <option>catering</option>
+          <option>hair salon</option>
+          <option>barbershop</option>
+          <option>contractor</option>
+          <option>plumber</option>
+          <option>electrician</option>
+          <option>cleaning service</option>
+          <option>childcare</option>
+          <option>fitness studio</option>
+          <option>nonprofit</option>
+          <option>retail shop</option>
+          <option>food truck</option>
+          <option>other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Email tone</label>
+        <select id="tone">
+          <option value="warm">Warm &amp; friendly</option>
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Why are you reaching out? <span style="color:var(--muted);font-weight:400">(be specific — this makes the emails better)</span></label>
+      <textarea id="reason" placeholder="We haven't seen some of our regulars in a few months and want to invite them back for our new fall menu. We're also running 15% off for returning customers through October."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your contacts</div>
+    <div class="contact-header">
+      <span>First name</span>
+      <span>Email</span>
+      <span>Notes (optional)</span>
+      <span></span>
+    </div>
+    <div class="contact-list" id="contact-list"></div>
+    <button class="add-btn" onclick="addContact()">+ Add contact</button>
+  </div>
+
+  <button class="generate-btn" id="generate-btn" onclick="generate()">Generate personalized emails</button>
+
+  <div id="results"></div>
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────
+  const WORKER_URL = 'https://main-street-customers.YOUR_SUBDOMAIN.workers.dev';
+
+  // ── Contact management ────────────────────────────────────────────────────
+  let contactCount = 0;
+
+  function addContact(name = '', email = '', notes = '') {
+    const id = ++contactCount;
+    const row = document.createElement('div');
+    row.className = 'contact-row';
+    row.id = `contact-${id}`;
+    row.innerHTML = `
+      <input type="text" placeholder="Maria" value="${esc(name)}" data-field="name" />
+      <input type="email" placeholder="maria@email.com" value="${esc(email)}" data-field="email" />
+      <input type="text" class="notes-field" placeholder="Regular customer, likes the lunch special" value="${esc(notes)}" data-field="notes" />
+      <button class="remove-btn" onclick="removeContact(${id})" title="Remove">×</button>
+    `;
+    document.getElementById('contact-list').appendChild(row);
+  }
+
+  function removeContact(id) {
+    const el = document.getElementById(`contact-${id}`);
+    if (el) el.remove();
+  }
+
+  function getContacts() {
+    return [...document.querySelectorAll('.contact-row')].map(row => ({
+      name: row.querySelector('[data-field="name"]').value.trim(),
+      email: row.querySelector('[data-field="email"]').value.trim(),
+      notes: row.querySelector('[data-field="notes"]').value.trim(),
+    })).filter(c => c.name || c.email);
+  }
+
+  function esc(str) {
+    return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  }
+
+  // ── Generate ──────────────────────────────────────────────────────────────
+  async function generate() {
+    const your_name = document.getElementById('your_name').value.trim();
+    const your_org = document.getElementById('your_org').value.trim();
+    const business_type = document.getElementById('business_type').value;
+    const tone = document.getElementById('tone').value;
+    const reason = document.getElementById('reason').value.trim();
+    const contacts = getContacts();
+
+    if (!your_org) return showError('Please enter your business name.');
+    if (!reason) return showError('Please describe why you\'re reaching out.');
+    if (contacts.length === 0) return showError('Add at least one contact.');
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Writing emails…';
+
+    const resultsEl = document.getElementById('results');
+    resultsEl.innerHTML = `<div class="results-header">Generating ${contacts.length} email${contacts.length > 1 ? 's' : ''}…</div>`;
+
+    const results = [];
+    for (const contact of contacts) {
+      try {
+        const res = await fetch(`${WORKER_URL}/outreach/draft`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            business_name: contact.name + (contact.notes ? ` — ${contact.notes}` : ''),
+            business_type: business_type || 'contact',
+            your_name,
+            your_org,
+            reason,
+            tone,
+          })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        results.push({ contact, data, error: null });
+      } catch (err) {
+        results.push({ contact, data: null, error: err.message });
+      }
+      renderResults(results, contacts.length);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Generate personalized emails';
+  }
+
+  function renderResults(results, total) {
+    const done = results.length;
+    const resultsEl = document.getElementById('results');
+    resultsEl.innerHTML = `<div class="results-header">${done < total ? `Generating… (${done}/${total})` : `${done} email${done > 1 ? 's' : ''} ready`}</div>`;
+
+    for (const { contact, data, error } of results) {
+      const card = document.createElement('div');
+      card.className = 'result-card';
+
+      if (error || !data) {
+        card.innerHTML = `
+          <div class="result-name">${htmlEsc(contact.name || 'Unknown')}</div>
+          <div class="result-email">${htmlEsc(contact.email)}</div>
+          <div class="error-msg">Could not generate email: ${htmlEsc(error || 'Unknown error')}</div>
+        `;
+      } else {
+        const fullEmail = `Subject: ${data.subject}\n\n${data.body}`;
+        card.innerHTML = `
+          <div class="result-name">
+            ${htmlEsc(contact.name || 'Contact')}
+            <button class="copy-btn" onclick="copyEmail(this, \`${escJs(fullEmail)}\`)">Copy email</button>
+          </div>
+          <div class="result-email">${htmlEsc(contact.email)}</div>
+          <div class="result-subject">Subject line</div>
+          <div class="subject-line">${htmlEsc(data.subject)}</div>
+          <div class="result-subject">Email body</div>
+          <div class="email-body">${htmlEsc(data.body)}</div>
+          ${data.follow_up_timing ? `<div class="followup-note"><span class="followup-label">Follow-up:</span> ${htmlEsc(data.follow_up_timing)}</div>` : ''}
+        `;
+      }
+      resultsEl.appendChild(card);
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('results').innerHTML = `<div class="error-msg">${htmlEsc(msg)}</div>`;
+  }
+
+  async function copyEmail(btn, text) {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy email'; btn.classList.remove('copied'); }, 2000);
+  }
+
+  function htmlEsc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escJs(str) {
+    return String(str || '').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  addContact('Maria', 'maria@example.com', 'Regular, loves the lunch special');
+  addContact('James', 'james@example.com', "Hasn't visited in 3 months");
+  addContact('', '', '');
+</script>
+</body>
+</html>
