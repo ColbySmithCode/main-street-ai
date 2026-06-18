@@ -58,7 +58,7 @@ Each module is independent. Deploy one, or all ten. Each runs on Cloudflare Work
 
 | Module | Status | What's built |
 |---|---|---|
-| Presence | ✅ Live | Digital audit → A–F grade, quick wins, action plan |
+| Presence | ✅ Live | Digital audit → A–F grade, quick wins, action plan · [Live demo](https://community-digital-health-check.pages.dev) · [Standalone repo](https://github.com/colbysmithcode/community-digital-health-check) |
 | Customers | ✅ Built | Outreach drafting, review response, lead scoring |
 | Impact | ✅ Built | Program stats → funder narrative, board summary, social posts |
 | Grants | ✅ Built | Grant finder, LOI generator, proposal assistant, budget justification |
