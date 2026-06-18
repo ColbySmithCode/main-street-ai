@@ -12,34 +12,45 @@ Large companies have entire departments for marketing, operations, finance, cust
 
 Main Street AI gives that one person the leverage of a full team.
 
-Six AI-powered modules. One platform. Built on Cloudflare's free tier and the Anthropic API. Deployable in under 10 minutes. Free forever for organizations that need it most.
+Ten AI-powered modules — six for any small organization, four built specifically for nonprofits. One platform. Built on Cloudflare's free tier and the Anthropic API. Deployable in under 10 minutes. Free forever for organizations that need it most.
+
+> **Nonprofit organizations:** See [NONPROFITS.md](NONPROFITS.md) for the full playbook on how each module maps to your specific operational challenges.
 
 ---
 
 ## The problem
 
-There are **33 million small businesses** in the United States. The median small business has fewer than 5 employees. Most have no dedicated marketing, no HR, no finance team, no IT department. They run on gut instinct, spreadsheets, and Word documents.
+There are **33 million small businesses** and **1.5 million nonprofits** in the United States. Most have no dedicated marketing, no IT department, no grant writer, no development director. Staff are doing five jobs at once — on tight budgets, with no margin for expensive software.
 
-Meanwhile, enterprise companies are deploying AI across every function — cutting research time from hours to seconds, automating customer communication, generating content at scale, predicting cash flow, identifying grant opportunities.
+Meanwhile, enterprise companies are deploying AI across every function — cutting research time from hours to seconds, automating donor outreach, generating grant proposals at scale.
 
-The gap is widening. The companies that already had advantages are compounding them.
-
-Main Street AI is the attempt to close that gap.
+The gap is widening. Main Street AI is the attempt to close it.
 
 ---
 
-## The six modules
+## The ten modules
 
-| Module | What it does | Who needs it most |
-|---|---|---|
-| 🔍 **Presence** | Ongoing digital audit — score, monitor, improve | Every org with a website |
-| 👥 **Customers** | AI-powered outreach, review management, follow-up | Restaurants, services, retail |
-| ⚙️ **Operations** | Smart scheduling, invoice generation, task automation | Any business with appointments |
-| 📈 **Growth** | Content calendar, SEO guidance, social media automation | Orgs trying to reach more people |
-| 💰 **Capital** | Grant finder, loan readiness, cash flow forecasting | Nonprofits, early-stage businesses |
-| 🤝 **Network** | Connect with local resources, peer businesses, mentors | New business owners, isolated orgs |
+**For any small organization:**
 
-Each module is independent. Deploy one, or all six. Each runs on Cloudflare Workers (free tier) with an Anthropic API key as the only cost.
+| Module | What it does |
+|---|---|
+| 🔍 **Presence** | Digital audit — grade your online presence, get a specific action plan |
+| 👥 **Customers** | Write personalized outreach emails to your contact list |
+| ⚙️ **Operations** | Appointment scheduling + AI task inbox |
+| 📈 **Growth** | Social media content calendar, post generation |
+| 💰 **Capital** | Funding strategy — loans, crowdfunding, individual giving |
+| 🤝 **Network** | Connect with local peer organizations and mentors |
+
+**Built specifically for nonprofits:**
+
+| Module | What it does |
+|---|---|
+| 📊 **Impact** | Turn program stats into compelling funder reports and stories |
+| 📝 **Grants** | Grant finder + Letter of Intent writer + full proposal assistant |
+| 💌 **Donors** | Personalized thank-you letters, tax acknowledgments, lapsed donor win-back |
+| 🙋 **Volunteers** | Coordination emails, appreciation messages, hour summary reports |
+
+Each module is independent. Deploy one, or all ten. Each runs on Cloudflare Workers with an Anthropic API key as the only cost — roughly **$4/month** for a typical small nonprofit using all modules.
 
 ---
 
@@ -48,8 +59,12 @@ Each module is independent. Deploy one, or all six. Each runs on Cloudflare Work
 | Module | Status | What's built |
 |---|---|---|
 | Presence | ✅ Live | Digital audit → A–F grade, quick wins, action plan |
-| Customers | ✅ Built | Paste contacts + context → personalized outreach emails per contact |
-| Operations | 🔨 In progress | Schema, worker scaffold, scheduling prompt |
+| Customers | ✅ Built | Outreach drafting, review response, lead scoring |
+| Impact | ✅ Built | Program stats → funder narrative, board summary, social posts |
+| Grants | ✅ Built | Grant finder, LOI generator, proposal assistant, budget justification |
+| Donors | ✅ Built | Thank-you letters, year-end tax acknowledgments, lapsed donor win-back |
+| Volunteers | ✅ Built | Shift outreach, appreciation messages, hour summary reports |
+| Operations | 🔨 In progress | Scheduling + task inbox scaffold |
 | Growth | 📋 Planned | Architecture designed, prompts drafted |
 | Capital | 📋 Planned | Grant search prompt designed, worker stub |
 | Network | 📋 Planned | Matching algorithm designed |
@@ -86,13 +101,17 @@ main-street-ai/
 │   ├── web/          ← React dashboard (unified UI across all modules)
 │   └── api/          ← Central API gateway (auth, routing, rate limiting)
 │
-├── modules/          ← Six independent AI modules
+├── modules/          ← Ten independent AI modules (six general + four nonprofit)
 │   ├── presence/     ← ✅ Built
 │   ├── customers/    ← 🔨 In progress
 │   ├── operations/   ← 🔨 In progress
 │   ├── growth/       ← 📋 Planned
 │   ├── capital/      ← 📋 Planned
-│   └── network/      ← 📋 Planned
+│   ├── network/      ← 📋 Planned
+│   ├── impact/       ← ✅ Built (nonprofit)
+│   ├── grants/       ← ✅ Built (nonprofit)
+│   ├── donors/       ← ✅ Built (nonprofit)
+│   └── volunteers/   ← ✅ Built (nonprofit)
 │
 ├── packages/
 │   ├── ai/           ← Shared Claude client, prompt library, response parsers
