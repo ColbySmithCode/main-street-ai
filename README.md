@@ -1,6 +1,6 @@
 # Main Street AI
 
-Free, open-source AI tools for the small businesses and nonprofits that can't afford an agency.
+Free, open-source AI writing tools for the small businesses and nonprofits that can't afford an agency.
 
 Each tool is a small Cloudflare Worker with a simple web form in front of it. You fill in the form with things like program stats, donor details, or the grant you're going after. Claude writes the draft a small team never has time for: a grant letter, a donor thank-you, a volunteer reminder, a funder report, or a customer email.
 

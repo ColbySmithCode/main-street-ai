@@ -16,7 +16,7 @@ It's easy to say AI should benefit everyone. It's harder to build the thing that
 
 The challenge is specificity. A nonprofit director doesn't want "AI assistance" — she wants to know exactly what her Google Business Profile is missing and what to type in to fix it. A plumber doesn't want a "content strategy" — he wants three post ideas for this week that will make people trust him before they call.
 
-Generic AI tools produce generic advice. Main Street AI is built on the premise that **specificity is the product**. Every output — every audit, every recommendation, every draft — is tailored to the exact organization type, city, and situation. A restaurant in rural Montana gets different advice than a nonprofit in Atlanta. That specificity is what makes the advice actionable instead of overwhelming.
+Generic AI chatbots produce generic advice. Main Street AI is built on the premise that **specificity is the product**. Every output — every audit, every recommendation, every draft — is tailored to the exact organization type, city, and situation. A restaurant in rural Montana gets different advice than a nonprofit in Atlanta. That specificity is what makes the advice actionable instead of overwhelming.
 
 ## The compounding problem we're trying to solve
 
