@@ -1,0 +1,6 @@
+# Local secrets for `wrangler dev`.
+# Copy this file into the worker folder you're running, named .dev.vars:
+#   cp .dev.vars.example modules/grants/worker/.dev.vars
+# .dev.vars is gitignored. For deployed workers, use `wrangler secret put` instead.
+
+ANTHROPIC_API_KEY=your-anthropic-api-key-here

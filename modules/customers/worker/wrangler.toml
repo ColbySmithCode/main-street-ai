@@ -10,4 +10,3 @@ database_id = "YOUR_D1_DATABASE_ID"
 
 # Secrets (never committed):
 # wrangler secret put ANTHROPIC_API_KEY
-# wrangler secret put AUTH_SECRET

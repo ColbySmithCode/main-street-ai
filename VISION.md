@@ -70,17 +70,6 @@ In five years, the gap between businesses that can afford agencies and businesse
 
 That's the goal. This is the start.
 
-## Connection to the existing work
-
-The other four repositories in this portfolio aren't side projects — they're production tools built to run a real digital marketing agency. Each one solved a specific operational problem:
-
-- **mtm-automation-system**: Reduced client onboarding from 90 minutes to 4 minutes using Cloudflare Workers and AI-generated websites
-- **outpace-social-scheduler**: Built a full social scheduling system on Cloudflare's free tier instead of paying $99/month for a SaaS
-- **mtm-tools-dashboard**: 11 AI-powered tools for prospect research, content generation, and meeting intelligence
-- **community-digital-health-check**: The Presence module, now live and deployed
-
-Main Street AI takes what those tools proved — that a single developer can build production-quality AI infrastructure on zero infrastructure cost — and turns it toward the organizations that need it most. The architecture is the same. The beneficiaries are different.
-
 ## What a year of focused development could produce
 
 **Month 1–2:** Finish the Operations module. Launch the unified multi-module dashboard. Onboard 50 beta organizations.

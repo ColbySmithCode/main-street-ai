@@ -8,18 +8,5 @@ binding = "DB"
 database_name = "main-street-ai"
 database_id = "YOUR_D1_DATABASE_ID"
 
-[[queues.producers]]
-binding = "REMINDER_QUEUE"
-queue = "main-street-reminders"
-
-[[queues.consumers]]
-queue = "main-street-reminders"
-max_batch_size = 10
-max_batch_timeout = 30
-
-[triggers]
-crons = ["0 8 * * *"]  # Daily 8am digest
-
 # Secrets (never committed):
 # wrangler secret put ANTHROPIC_API_KEY
-# wrangler secret put AUTH_SECRET

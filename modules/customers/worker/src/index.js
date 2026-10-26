@@ -12,9 +12,9 @@
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { outreachPrompt } from '../../../prompts/outreach.js';
-import { reviewResponsePrompt } from '../../../prompts/review-response.js';
-import { leadScorePrompt } from '../../../prompts/lead-score.js';
+import { outreachPrompt } from '../../prompts/outreach.js';
+import { reviewResponsePrompt } from '../../prompts/review-response.js';
+import { leadScorePrompt } from '../../prompts/lead-score.js';
 
 const app = new Hono();
 

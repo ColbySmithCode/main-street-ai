@@ -7,3 +7,7 @@ dist/
 *.log
 .DS_Store
 .turbo/
+
+# AI assistant notes (kept local, not published)
+CLAUDE.md
+.claude/

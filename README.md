@@ -1,179 +1,120 @@
 # Main Street AI
 
-**Free AI tools for the small businesses and nonprofits that can't afford an agency.**
+Free, open-source AI tools for the small businesses and nonprofits that can't afford an agency.
 
-**[→ Try the Digital Health Check (live demo)](https://community-digital-health-check.pages.dev)** — get a grade for your business's online presence in 30 seconds.
+Each tool is a small Cloudflare Worker with a simple web form in front of it. You fill in the form with things like program stats, donor details, or the grant you're going after. Claude writes the draft a small team never has time for: a grant letter, a donor thank-you, a volunteer reminder, a funder report, or a customer email.
 
----
+## Why I built this
 
-**An open-source AI operating system for small businesses and nonprofits.**
+Most small organizations have one or two people handling marketing, fundraising, and operations all at once. The agencies and software that help with that work cost money these groups usually don't have.
 
-Large companies have entire departments for marketing, operations, finance, customer outreach, and content. A small business or nonprofit has one person doing all of it — probably the owner, probably evenings and weekends.
+I wanted tools that are cheap to run, easy to fork, and simple enough that someone without a tech background can use the output right away. Everything runs on Cloudflare Workers plus an Anthropic API key. There's no build step and no framework to learn.
 
-Main Street AI gives that one person the leverage of a full team.
+## What's in here
 
-Ten AI-powered modules — six for any small organization, four built specifically for nonprofits. One platform. Built on Cloudflare's free tier and the Anthropic API. Deployable in under 10 minutes. Free forever for organizations that need it most.
-
-> **Nonprofit organizations:** See [NONPROFITS.md](NONPROFITS.md) for the full playbook on how each module maps to your specific operational challenges.
-
----
-
-## The problem
-
-There are **33 million small businesses** and **1.5 million nonprofits** in the United States. Most have no dedicated marketing, no IT department, no grant writer, no development director. Staff are doing five jobs at once — on tight budgets, with no margin for expensive software.
-
-Meanwhile, enterprise companies are deploying AI across every function — cutting research time from hours to seconds, automating donor outreach, generating grant proposals at scale.
-
-The gap is widening. Main Street AI is the attempt to close it.
-
----
-
-## The ten modules
-
-**For any small organization:**
-
-| Module | What it does |
-|---|---|
-| 🔍 **Presence** | Digital audit — grade your online presence, get a specific action plan |
-| 👥 **Customers** | Write personalized outreach emails to your contact list |
-| ⚙️ **Operations** | Appointment scheduling + AI task inbox |
-| 📈 **Growth** | Social media content calendar, post generation |
-| 💰 **Capital** | Funding strategy — loans, crowdfunding, individual giving |
-| 🤝 **Network** | Connect with local peer organizations and mentors |
-
-**Built specifically for nonprofits:**
-
-| Module | What it does |
-|---|---|
-| 📊 **Impact** | Turn program stats into compelling funder reports and stories |
-| 📝 **Grants** | Grant finder + Letter of Intent writer + full proposal assistant |
-| 💌 **Donors** | Personalized thank-you letters, tax acknowledgments, lapsed donor win-back |
-| 🙋 **Volunteers** | Coordination emails, appreciation messages, hour summary reports |
-
-Each module is independent. Deploy one, or all ten. Each runs on Cloudflare Workers with an Anthropic API key as the only cost — roughly **$4/month** for a typical small nonprofit using all modules.
-
----
-
-## Current status
-
-| Module | Status | What's built |
+| Module | What it does | Status |
 |---|---|---|
-| Presence | ✅ Live | Digital audit → A–F grade, quick wins, action plan · [Live demo](https://community-digital-health-check.pages.dev) · [Standalone repo](https://github.com/colbysmithcode/community-digital-health-check) |
-| Customers | ✅ Built | Outreach drafting, review response, lead scoring |
-| Impact | ✅ Built | Program stats → funder narrative, board summary, social posts |
-| Grants | ✅ Built | Grant finder, LOI generator, proposal assistant, budget justification |
-| Donors | ✅ Built | Thank-you letters, year-end tax acknowledgments, lapsed donor win-back |
-| Volunteers | ✅ Built | Shift outreach, appreciation messages, hour summary reports |
-| Operations | 🔨 In progress | Scheduling + task inbox scaffold |
-| Growth | 📋 Planned | Architecture designed, prompts drafted |
-| Capital | 📋 Planned | Grant search prompt designed, worker stub |
-| Network | 📋 Planned | Matching algorithm designed |
+| **Grants** | Suggests grants an organization is a good fit for, drafts a Letter of Intent, and drafts one proposal section at a time | Built |
+| **Donors** | Writes thank-you letters, year-end tax acknowledgment letters, and win-back letters for lapsed donors. It can also batch a thank-you for every donor on a list | Built |
+| **Volunteers** | Writes recruitment messages, shift reminders, and appreciation notes, plus a volunteer-hours summary for grant reports | Built |
+| **Impact** | Turns raw program numbers into six formats: funder report, board summary, social post, newsletter paragraph, cost-per-outcome, and a headline | Built |
+| **Customers** | Drafts outreach emails and replies to customer reviews, and scores leads | In progress |
+| **Operations** | Turns plain-English requests into appointment details, invoices, prioritized task lists, and routine messages. It has no web form yet | In progress |
 
-The Presence module is fully built and deployed. The others have real scaffolding — they're not stubs, they're the first 20% of each module with the architecture decisions already made.
+Every module except Operations has a single-file web form in its `frontend` folder.
 
----
+## How it works
 
-## Quick start (Presence module)
+```
+Web form (frontend/index.html)
+   │  POST JSON
+   ▼
+Cloudflare Worker (Hono router)
+   │  loads the system prompt from the module's prompts/ folder
+   ▼
+Claude API  ──►  JSON back to the form, rendered as a ready-to-use draft
+```
+
+- **Prompts live in their own files** in each module's `prompts` folder, separate from the routing code, so they can be improved on their own.
+- **Model choice is per task.** Short, fast jobs use Claude Haiku 4.5. Long-form writing like grant letters and donor letters uses Claude Sonnet 4.6.
+- **Nothing is saved yet.** Every request is generated fresh. A database schema for org profiles, contacts, tasks, and grant tracking is in `infra/d1` for when storage gets added.
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Cloudflare Workers, one per module |
+| Routing | Hono |
+| AI | Anthropic Claude (Haiku 4.5 and Sonnet 4.6) |
+| Frontend | Plain HTML, CSS, and JavaScript, one file per module |
+| Database | Cloudflare D1 schema, not wired in yet |
+| Tooling | Wrangler (Cloudflare's CLI) |
+
+## Run it locally
+
+You need Node.js 18 or newer and an Anthropic API key. You only need a Cloudflare account if you want to deploy.
+
+This example runs the Grants module. Swap `grants` for any other module name.
 
 ```bash
 git clone https://github.com/colbysmithcode/main-street-ai
-cd main-street-ai/modules/presence/worker
+cd main-street-ai/modules/grants/worker
 npm install
-wrangler secret put ANTHROPIC_API_KEY
-wrangler deploy
+cp ../../../.dev.vars.example .dev.vars   # then paste your Anthropic key into .dev.vars
+npx wrangler dev
 ```
 
-Then open `modules/presence/frontend/index.html`, update the `WORKER_URL`, and deploy:
+The worker starts at `http://localhost:8787`. Check that it's up:
 
 ```bash
-wrangler pages deploy modules/presence/frontend/ --project-name main-street-presence
+curl http://localhost:8787/health
 ```
 
-Done. You have a live digital health check tool at `your-project.pages.dev`.
+Then open `modules/grants/frontend/index.html`, set `WORKER_URL` in the file's script section to `http://localhost:8787`, and open the file in your browser.
 
----
+## Deploy your own
 
-## Architecture
+From inside a module's `worker` folder:
+
+```bash
+npx wrangler d1 create main-street-ai        # paste the database_id it prints into wrangler.toml
+npx wrangler secret put ANTHROPIC_API_KEY
+npx wrangler deploy
+```
+
+Update `WORKER_URL` in that module's `frontend/index.html` to the URL `wrangler deploy` printed. Then publish the form:
+
+```bash
+npx wrangler pages deploy ../frontend --project-name main-street-grants
+```
+
+## Project layout
 
 ```
 main-street-ai/
-├── apps/
-│   ├── web/          ← React dashboard (unified UI across all modules)
-│   └── api/          ← Central API gateway (auth, routing, rate limiting)
-│
-├── modules/          ← Ten independent AI modules (six general + four nonprofit)
-│   ├── presence/     ← ✅ Built
-│   ├── customers/    ← 🔨 In progress
-│   ├── operations/   ← 🔨 In progress
-│   ├── growth/       ← 📋 Planned
-│   ├── capital/      ← 📋 Planned
-│   ├── network/      ← 📋 Planned
-│   ├── impact/       ← ✅ Built (nonprofit)
-│   ├── grants/       ← ✅ Built (nonprofit)
-│   ├── donors/       ← ✅ Built (nonprofit)
-│   └── volunteers/   ← ✅ Built (nonprofit)
-│
+├── modules/
+│   ├── grants/        worker/  prompts/  frontend/
+│   ├── donors/        worker/  prompts/  frontend/
+│   ├── volunteers/    worker/  prompts/  frontend/
+│   ├── impact/        worker/  prompts/  frontend/
+│   ├── customers/     worker/  prompts/  frontend/
+│   └── operations/    worker/
 ├── packages/
-│   ├── ai/           ← Shared Claude client, prompt library, response parsers
-│   ├── ui/           ← Shared component library
-│   └── types/        ← Shared TypeScript types across all modules
-│
-└── infra/
-    ├── d1/           ← Database schema + migrations
-    └── kv/           ← KV namespace setup scripts
+│   ├── ai/            shared Claude helper (the workers currently call the API directly)
+│   └── types/         shared TypeScript types
+├── infra/d1/          database schema
+├── VISION.md          why this exists and where it's headed
+└── ROADMAP.md         what's planned next
 ```
-
-Each module follows the same pattern:
-```
-modules/[name]/
-├── worker/
-│   ├── src/index.js  ← Cloudflare Worker (API)
-│   └── wrangler.toml
-├── frontend/
-│   └── index.html    ← Standalone HTML (no build step)
-└── prompts/
-    └── [name].md     ← System prompt, versioned separately from code
-```
-
-Prompts are versioned in Markdown files — not hardcoded strings — so they can be improved without redeploying workers.
-
----
-
-## Why this is fundable
-
-This platform replaces software that costs small businesses $800–2,000/year in SaaS subscriptions:
-
-| Module replaces | Typical cost |
-|---|---|
-| Presence (ongoing audit) | BrightLocal: $39/mo |
-| Customers (CRM + outreach) | HubSpot Starter: $45/mo |
-| Operations (scheduling) | Acuity/Calendly: $16/mo |
-| Growth (content + SEO) | Semrush + Buffer: $100/mo |
-| Capital (grant finder) | GrantStation: $49/mo |
-| Network (business resources) | Chamber memberships: $300/yr |
-
-**Total replaced: ~$2,800/year per organization.**
-
-For a nonprofit running on a shoestring budget, that's a full month of an employee's salary. For a restaurant owner working 70-hour weeks, that's dozens of hours they don't have.
-
-The Anthropic API cost to run all six modules for a typical small business: **under $5/month**.
-
-The model works. The question is deployment scale.
-
----
 
 ## Contributing
 
-This is open source. The most valuable contributions aren't code — they're prompts. If you work with a specific type of organization (faith communities, food businesses, immigrant-owned businesses, rural co-ops) and want to tune the AI advice for that context, the `prompts/` folder in each module is where to start.
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to add a new module or improve an existing prompt.
-
----
+The most useful contributions are usually prompts, not code. If you work with a specific kind of organization and want the drafts to sound right for it, each module's `prompts` folder is the place to start. Pull requests are welcome.
 
 ## License
 
-MIT. Deploy it, fork it, adapt it, build a business on top of it.
+MIT. See [LICENSE](LICENSE).
 
 ---
 
-*Built by [Colby Smith](https://morethanmomentum.com) · Powered by [Claude AI](https://anthropic.com) · Inspired by what small businesses deserve but rarely get.*
+Built by [Colby Smith](https://github.com/colbysmithcode).

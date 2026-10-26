@@ -134,7 +134,7 @@ The technical architecture is simpler than the other modules. The hard part is t
 
 ## Unified Dashboard (ongoing)
 
-The `apps/web/` and `apps/api/` directories contain the unified React dashboard and central API gateway that will eventually tie all six modules together under one login. Current status: designed, not yet built.
+A unified React dashboard and central API gateway are planned to tie all the modules together under one login. Current status: designed, not yet built.
 
 The unified dashboard isn't strictly necessary for the modules to work — each module's `frontend/index.html` is standalone. But for an organization using multiple modules, a unified view is important for usability.
 
